@@ -13,8 +13,7 @@ public partial class Grade
 
     public int? FkEmployeeId { get; set; }
 
-    public decimal? Grade1 { get; set; } // ändrat från string till int,decimal till double
-
+    public decimal? Grade1 { get; set; } 
     public DateTime? GradeDate { get; set; }
 
     public virtual Course? FkCourse { get; set; }

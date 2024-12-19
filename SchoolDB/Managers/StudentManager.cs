@@ -12,15 +12,17 @@ using System.Threading.Tasks;
 namespace SchoolDB.Managers
 {
   
-    public class StudentManager
+public class StudentManager
     {
         private readonly SchoolDBContext _context;
 
-        //Constructor
+        // Constructor to initialize the context
         public StudentManager(SchoolDBContext context)
         {
             _context = context;
         }
+
+        // Method to view students with sorting options
         public void ViewStudents()
         {
             try
@@ -33,6 +35,7 @@ namespace SchoolDB.Managers
                 string sortName = Console.ReadLine();
                 List<Student> students = new List<Student>();
 
+                // Sorting students based on user input
                 switch (sortName)
                 {
                     case "1":
@@ -49,9 +52,10 @@ namespace SchoolDB.Managers
                         break;
                 }
 
+                // Displaying sorted students
                 if (sortName == "1" || sortName == "2")
                 {
-                    Console.WriteLine("FirstName LastName");
+                    Console.WriteLine("First name : Last name");
                     foreach (var student in students)
                     {
                         Console.WriteLine($"{student.FirstName} {student.LastName}");
@@ -61,10 +65,11 @@ namespace SchoolDB.Managers
                 {
                     foreach (var student in students)
                     {
-                        Console.WriteLine($"{student.LastName} {student.FirstName}");
+                        Console.WriteLine("Last name : First name");
+                        Console.WriteLine($"{student.LastName} , {student.FirstName}");
                     }
                 }
-                
+
                 Console.ReadLine();
             }
             catch (Exception ex)
@@ -74,18 +79,16 @@ namespace SchoolDB.Managers
             Console.WriteLine("Press any key return to menu");
             Console.ReadKey();
         }
-        // Metod for view students in courses
-        // Trying another way of showing menu alternative by using forloop and if statements
+
+        // Method to view students attending a specific course
         public void ViewStudentsAttendingCourse()
         {
             // Displaying the list of students
             Console.WriteLine("***List of students***");
             var students = _context.Students.ToList();
-            //students.ForEach(student => Console.WriteLine($"{student.StudentId} - {student.FirstName} {student.LastName} "));
-            foreach (var student in students)
-            {
-                Console.WriteLine($"{student.StudentId} - {student.FirstName} {student.LastName}");
-            }
+            students.ForEach(student => Console.WriteLine($"{student.StudentId} - {student.FirstName} {student.LastName} "));
+
+            // Displaying the list of courses
             Console.WriteLine("\n***View students by course***");
             Console.WriteLine("Type in course number to select ");
 
@@ -102,12 +105,14 @@ namespace SchoolDB.Managers
             {
                 int courseId = courses[courseIndex - 1].CourseId;
 
+                // Fetching students enrolled in the selected course
                 var studentsInCourse = _context.Enrollments
                                                 .Where(e => e.FkCourseId == courseId)
                                                 .Include(e => e.FkStudent)
                                                 .Select(e => e.FkStudent)
                                                 .ToList();
 
+                // Displaying students in the selected course
                 Console.WriteLine("Students in the selected course:");
                 studentsInCourse.ForEach(student => Console.WriteLine($"{student.FirstName} {student.LastName}"));
             }
@@ -118,10 +123,9 @@ namespace SchoolDB.Managers
 
             Console.WriteLine("Press any key to choose another course return to main menu.");
             Console.ReadKey();
-             
         }
 
-        //Method to add student 
+        // Method to add a new student
         public void AddStudents()
         {
             try
@@ -137,36 +141,26 @@ namespace SchoolDB.Managers
                 Console.WriteLine("Enter student contact: ");
                 string contact = Console.ReadLine();
 
-                // Creating a new student out of a Student class
+                // Creating a new student object
                 var student = new Student()
                 {
                     FirstName = firstName,
                     LastName = lastName,
                     BirthDate = birthDate,
                     Contact = contact
-
                 };
+
+                // Adding the new student to the context and saving changes
                 _context.Students.Add(student);
                 _context.SaveChanges();
                 Console.WriteLine("Student Added!");
             }
             catch (Exception ex)
             {
-
                 Console.WriteLine($"Error: {ex.Message}");
             }
             Console.WriteLine("Press any key return to menu");
             Console.ReadKey();
-
         }
     }
 }
-//[]  Hämta alla elever (ska lösas med Entity framework)
-        
-//                Användaren får välja om de vill se eleverna sorterade på för- eller efternamn och om det ska vara stigande eller fallande sortering.
-        
-// [ ] Hämta alla elever i en viss klass (ska lösas med Entity framework)
-        
-//                Användaren ska först få se en lista med alla klasser som finns, sedan får användaren välja en av klasserna och då skrivs alla elever i den klassen ut.
-        
-//                🏆 Extra utmaning (Frivillig): låt användaren även få välja sortering på eleverna som i punkten ovan.

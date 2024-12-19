@@ -11,10 +11,12 @@ namespace SchoolDB.Views
 {
     public class MainMenu
     {
+        // Managers for handling employees, students, and grades
         private readonly EmployeeManager _employeeManager;
         private readonly StudentManager _studentManager;
         private readonly GradeManager _gradeManager;
 
+        // Constructor initializing managers with the database context
         public MainMenu(SchoolDBContext context)
         {
             _employeeManager = new EmployeeManager(context);
@@ -22,6 +24,7 @@ namespace SchoolDB.Views
             _gradeManager = new GradeManager(context);
         }
 
+        // Method to display the main menu and handle user input
         public void ShowMainMemu()
         {
             bool running = true;
@@ -31,15 +34,17 @@ namespace SchoolDB.Views
                 Console.Clear();
                 Console.WriteLine("1. View all employees");
                 Console.WriteLine("2. View all students");
-                Console.WriteLine("3  View students attending course");
+                Console.WriteLine("3. View students attending course");
                 Console.WriteLine("4. View grades from the last month");
                 Console.WriteLine("5. View course grades statistics");
                 Console.WriteLine("6. Add new student");
                 Console.WriteLine("7. Add new employee");
                 Console.WriteLine("8. Exit");
 
+                // Read user choice
                 string choice = Console.ReadLine();
 
+                // Handle user choice
                 switch (choice)
                 {
                     case "1":
@@ -55,7 +60,7 @@ namespace SchoolDB.Views
                         _gradeManager.ViewGradesLastMonth();
                         break;
                     case "5":
-                        _gradeManager.ViewCourseGradeStats(); //Not working
+                        _gradeManager.ViewCourseGradeStats();
                         break;
                     case "6":
                         _studentManager.AddStudents();
@@ -64,15 +69,13 @@ namespace SchoolDB.Views
                         _employeeManager.AddEmployee();
                         break;
                     case "8":
-                        running = false;
+                        running = false; // Exit the loop and end the program
                         break;
                     default:
-                        Console.WriteLine("Invalid");
+                        Console.WriteLine("Invalid choice, please try again.");
                         break;
                 }
-
             }
         }
-
     }
 }
