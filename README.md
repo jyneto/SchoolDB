@@ -28,8 +28,6 @@ Fetch a list of all courses and the average grade, highest grade, and lowest gra
 
 The user directly sees a list of all courses in the database, the average grade, and the highest and lowest grades for each course.
 
-Tip: It might be challenging to do this with letter grades, so you can choose to store grades as numbers instead.
-
 Add new students (can be done using ADO.NET and SQL, or Entity Framework)
 
 The user can input details for a new student, and the data is then saved to the database.
