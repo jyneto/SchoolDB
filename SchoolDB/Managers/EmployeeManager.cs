@@ -9,20 +9,22 @@ using System.Threading.Tasks;
 
 namespace SchoolDB.Managers
 {
+    // The EmployeeManager class provides methods to manage Employee entities in the SchoolDB database.
+    // It includes methods to view and add employees, utilizing the SchoolDBContext for database operations.
     public class EmployeeManager
     {
         private readonly SchoolDBContext _context;
 
-        //Constructor
+        // Constructor to initialize the EmployeeManager with a database context.
         public EmployeeManager(SchoolDBContext context)
         {
             _context = context;
         }
 
-        //Method to view employees
+        // Method to view employees based on their category.
+        // Prompts the user to select a category and displays the corresponding employees.
         public void ViewEmployees()
         {
-         
             Console.WriteLine("Select category of employees:");
             Console.WriteLine("1. Teacher");
             Console.WriteLine("2. HR");
@@ -31,7 +33,7 @@ namespace SchoolDB.Managers
             Console.WriteLine("5. Janitor");
             Console.WriteLine("6. IT");
             Console.WriteLine("7. View all employees");
-            Console.WriteLine("Enter your choice (1-5): ");
+            Console.WriteLine("Enter your choice (1-7): ");
 
             string choice = Console.ReadLine();
             Console.Clear();
@@ -64,8 +66,8 @@ namespace SchoolDB.Managers
                 default:
                     Console.WriteLine("Invalid choice. Please select a valid option from the menu");
                     return;
-
             }
+
             if (employees.Count == 0)
             {
                 Console.WriteLine("No employees found for the given category.");
@@ -79,25 +81,24 @@ namespace SchoolDB.Managers
             }
             Console.WriteLine("Press any key to return to menu");
             Console.ReadKey();
-
         }
 
-        //Method to add Employees
-
+        // Method to add a new employee to the database.
+        // Prompts the user for employee details and saves the new employee to the database.
         public void AddEmployee()
         {
             Console.WriteLine("Enter employee first name: ");
             string firstName = Console.ReadLine();
             Console.WriteLine("Enter employee last name: ");
             string lastName = Console.ReadLine();
-            Console.WriteLine("Enter employee title (ex. HR,Teacher etc): ");
+            Console.WriteLine("Enter employee title (ex. HR, Teacher, etc): ");
             string title = Console.ReadLine();
             Console.WriteLine("Enter employee hire date (yyyy-mm-dd): ");
             DateTime hireDate = DateTime.Parse(Console.ReadLine());
-            Console.WriteLine("Enter emplpyee contact: ");
+            Console.WriteLine("Enter employee contact: ");
             string contact = Console.ReadLine();
 
-            // Creating a new employee out of a Employee class
+            // Creating a new employee instance
             var employee = new Employee()
             {
                 FirstName = firstName,
@@ -105,14 +106,13 @@ namespace SchoolDB.Managers
                 Title = title,
                 HireDate = hireDate,
                 Contact = contact
-
             };
-            _context.Employees.Add(employee);// Build in method to inform EF context that we are trying to add a new employee into the DbSet connected to _context
-            _context.SaveChanges();// Commit the changes that been made into the database
-            Console.WriteLine("Employee Added! \n Press any key to return in menu");
-            Console.ReadKey();
-         
-        }
 
+            // Adding the new employee to the context and saving changes to the database
+            _context.Employees.Add(employee);
+            _context.SaveChanges();
+            Console.WriteLine("Employee Added! \n Press any key to return to menu");
+            Console.ReadKey();
+        }
     }
 }
