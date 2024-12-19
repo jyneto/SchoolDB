@@ -1,9 +1,9 @@
 # SchoolDB 
 <h2> School database system </h2>
-<p>  The main point of this assigment is to learn how use Entityt Framework. Implementing these varius functions: </p>
+<p>  The main point of this assignment is to learn how use Entity Framework and database through SSMS. Implementing these varius functions: </p>
 
 <br>
-<p> C
+<p> 
 Create simple navigation in the program allowing the user to choose between the following functions:
 
 Fetch personnel (can be done using ADO.NET and SQL, or Entity Framework)
