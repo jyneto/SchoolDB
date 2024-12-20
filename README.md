@@ -1,6 +1,6 @@
 # SchoolDB 
 <h2> School database system </h2>
-<p>  The main point of this assignment is to learn how use Entity Framework and database through SSMS. Implementing these varius functions: </p>
+<p>  The main point of this assignment is to learn how use LINQ with Entity Framework and database through SSMS. Implementing these varius functions: </p>
 
 <br>
 <p> 
