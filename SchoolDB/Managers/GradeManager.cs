@@ -48,40 +48,20 @@ namespace SchoolDB.Managers
             Console.Clear();
             Console.WriteLine("Courses retrieved: " + courses.Count);
 
-            // Iterate through each course to process its grades
             foreach (var course in courses)
             {
                 Console.WriteLine($"\nProcessing course: {course.CourseName}");
 
-                // Retrieve all grades for the current course
                 var grades = _context.Grades.Where(g => g.FkCourseId == course.CourseId).ToList();
                 Console.WriteLine($"Grades found for course '{course.CourseName}': " + grades.Count);
 
-                // Extract grade values from the grades
                 var gradeValues = grades.Select(g => g.Grade1).ToList();
 
-                // Map grade values to numerical equivalents
-                var gradeValueMap = new Dictionary<decimal, int>
-                    {
-                        { 20m, 5},
-                        { 17.5m, 4},
-                        { 15m, 3},
-                        { 12.5m, 2},
-                        { 10m, 1},
-                        { 0m, 0}
-                    };
-
-                // Convert grade values to numerical grades using the map
-                var numericalGrades = gradeValues
-                    .Select(g => g.HasValue && gradeValueMap.TryGetValue(g.Value, out int value) ? value : 0).ToList();
-                Console.WriteLine($"Grades for course '{course.CourseName}': " + string.Join(", ", numericalGrades));
-
-                // Calculate and display average, maximum, and minimum grades if there are any grades
-                if (numericalGrades.Count > 0)
+                if (gradeValues.Count > 0)
                 {
-                    var avgGrade = numericalGrades.Average();
-                    var maxGrade = numericalGrades.Max();
-                    var minGrade = numericalGrades.Min();
+                    var avgGrade = gradeValues.Average(g => g ?? 0);
+                    var maxGrade = gradeValues.Max(g => g ?? 0);
+                    var minGrade = gradeValues.Min(g => g ?? 0);
 
                     Console.WriteLine($"{course.CourseName} - Avg: {avgGrade:F2}, Max: {maxGrade}, Min: {minGrade}\n");
                 }
