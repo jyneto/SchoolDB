@@ -15,127 +15,132 @@ namespace SchoolDB.Managers
 public class StudentManager
     {
         private readonly SchoolDBContext _context;
-
+        private readonly GradeManager _gradeManager;
         // Constructor to initialize the context
         public StudentManager(SchoolDBContext context)
         {
             _context = context;
+            _gradeManager = new GradeManager(context);
         }
 
         // Method to view students with sorting options
         public void ViewStudents()
         {
-            try
+
+            Console.WriteLine("[1] Active Courses\n" +
+                              "[2] Student Information \n" +
+                              "[3] Grades from lastmonth\n" +
+                              "[4] Create new student \n"
+                              //"[4] Last name Descending"
+                              );
+
+            Console.WriteLine("Enter choice (1-4) OR press Enter to return to main menu.");
+            
+            string sortName = Console.ReadLine();
+            List<Student> students = new List<Student>();
+
+            // Sorting students based on user input
+            switch (sortName)
             {
-                Console.WriteLine("[1] First name Ascending \n" +
-                                  "[2] First name Descending \n" +
-                                  "[3] Last name Ascending \n" +
-                                  "[4] Last name Descending");
-
-                string sortName = Console.ReadLine();
-                List<Student> students = new List<Student>();
-
-                // Sorting students based on user input
-                switch (sortName)
-                {
-                    case "1":
-                        students = _context.Students.OrderBy(s => s.FirstName).ToList();
-                        break;
-                    case "2":
-                        students = _context.Students.OrderByDescending(s => s.FirstName).ToList();
-                        break;
-                    case "3":
-                        students = _context.Students.OrderBy(s => s.LastName).ToList();
-                        break;
-                    case "4":
-                        students = _context.Students.OrderByDescending(s => s.LastName).ToList();
-                        break;
-                }
-
-                // Displaying sorted students
-                if (sortName == "1" || sortName == "2")
-                {
-                    Console.WriteLine("First name : Last name");
-                    foreach (var student in students)
-                    {
-                        Console.WriteLine($"{student.FirstName} {student.LastName}");
-                    }
-                }
-                else
-                {
-                    foreach (var student in students)
-                    {
-                        Console.WriteLine("Last name : First name");
-                        Console.WriteLine($"{student.LastName} , {student.FirstName}");
-                    }
-                }
-
-                Console.ReadLine();
+                case "1":
+                    ViewActiveCourses();
+                    break;
+                case "2":
+                    ViewStudentsAttendingCourse();
+                    break;
+                case "3":
+                    _gradeManager.ViewGradesLastMonth();
+                    break;
+                case "4":
+                   
+                    AddStudents();
+                    break;
+                default:
+                    Console.WriteLine("Enter valid number");
+                    return;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            Console.WriteLine("Press any key return to menu");
-            Console.ReadKey();
+      
         }
-
+            
         // Method to view students attending a specific course
         public void ViewStudentsAttendingCourse()
         {
-            // Displaying the list of students
-            Console.WriteLine("***List of students***");
-            var students = _context.Students.ToList();
-            students.ForEach(student => Console.WriteLine($"{student.StudentId} - {student.FirstName} {student.LastName} "));
+            //Fetch all students along with their courses and grades
+            var studentInCourse = _context.Enrollments
+                                           .Include(e => e.FkStudent)
+                                           .Include(e => e.FkCourse)
+                                           .Include(e => e.FkStudent.Grades)
+                                           .ToList();
 
-            // Displaying the list of courses
-            Console.WriteLine("\n***View students by course***");
-            Console.WriteLine("Type in course number to select ");
+            var students= studentInCourse
+                                 .GroupBy(s => s.FkStudent.StudentId)
+                                 .Select(g => new
+                                 {
+                                     Student = g.First().FkStudent,
+                                     Course = g.Select(e => e.FkCourse).Distinct(),
+                                     Grades = g.First().FkStudent.Grades
+                                 })
+                                 .OrderBy(s => s.Student.FirstName)
+                                 .ThenBy(s => s.Student.LastName)
+                                 .ToList();
 
-            var courses = _context.Courses.ToList();
-
-            for (int i = 0; i < courses.Count; i++)
+            Console.WriteLine("Students attending courses:");
+            foreach (var studentRecord in students)
             {
-                Console.WriteLine($"{i + 1}. {courses[i].CourseName}");
+                var student = studentRecord.Student;
+
+                Console.WriteLine();
+                Console.WriteLine($"Student ID: {student.StudentId} - {student.FirstName} {student.LastName}");
+                Console.WriteLine($"Birthdate: {student.BirthDate?.ToString("yyyy-MM-dd")}");
+                Console.WriteLine($"Contact: {student.Contact}");
+
+                //var studentCourses = studentInCourse
+                //                        .Where(s => s.Student.StudentId == student.StudentId)
+                //                        .Select(s => s.Course)
+                //                        .Distinct();
+                Console.WriteLine("Courses enrolled");
+                foreach (var course in studentRecord.Course)
+                {
+                    Console.WriteLine($"    - {course.CourseName}, Status: {course.Status}");
+                }
+
+                //var studentGrades = studentRecord.Grades;
+                Console.WriteLine("Grades:");
+                foreach (var grade in studentRecord.Grades)
+                {
+                    Console.WriteLine($"    - Grade: {grade.Grade1}, Date: {grade.GradeDate?.ToString("yyyy-MM-dd")}");
+                }
+                Console.WriteLine();
             }
-
-            string input = Console.ReadLine();
-            Console.Clear();
-            if (int.TryParse(input, out int courseIndex) && courseIndex > 0 && courseIndex <= courses.Count)
-            {
-                int courseId = courses[courseIndex - 1].CourseId;
-
-                // Fetching students enrolled in the selected course
-                var studentsInCourse = _context.Enrollments
-                                                .Where(e => e.FkCourseId == courseId)
-                                                .Include(e => e.FkStudent)
-                                                .Select(e => e.FkStudent)
-                                                .ToList();
-
-                // Displaying students in the selected course
-                Console.WriteLine("Students in the selected course:");
-                studentsInCourse.ForEach(student => Console.WriteLine($"{student.FirstName} {student.LastName}"));
-            }
-            else
-            {
-                Console.WriteLine("Invalid format. Please try again.");
-            }
-
-            Console.WriteLine("Press any key to choose another course return to main menu.");
+            Console.WriteLine("");
+            Console.WriteLine("** Press any key to return to main menu **");
             Console.ReadKey();
+        }
+
+        public void ViewActiveCourses()
+        {
+            var activeCourses = _context.Courses
+                                        .Where(c => c.Status == "Active")
+                                        .OrderBy(c => c.CourseName)
+                                        .ToList();
+
+            foreach (var course in activeCourses)
+            {
+                Console.WriteLine($"Course: {course.CourseName} - Status: {course.Status}");
+            }
+            Console.WriteLine("** Press any key to return to main menu **");
+            Console.ReadKey();
+
         }
 
         // Method to add a new student
         public void AddStudents()
         {
-            try
-            {
+           
                 Console.WriteLine("Enter student first name: ");
                 string firstName = Console.ReadLine();
                 Console.WriteLine("Enter student last name: ");
                 string lastName = Console.ReadLine();
-                Console.WriteLine("Enter employee title (ex. HR,Teacher etc): ");
-                string title = Console.ReadLine();
                 Console.WriteLine("Enter student birthdate (yyyy-mm-dd): ");
                 DateTime birthDate = DateTime.Parse(Console.ReadLine());
                 Console.WriteLine("Enter student contact: ");
@@ -154,13 +159,10 @@ public class StudentManager
                 _context.Students.Add(student);
                 _context.SaveChanges();
                 Console.WriteLine("Student Added!");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error: {ex.Message}");
-            }
-            Console.WriteLine("Press any key return to menu");
-            Console.ReadKey();
+                Console.WriteLine("** Press any key return to menu **");
+                Console.ReadKey();
+            
+
         }
     }
 }

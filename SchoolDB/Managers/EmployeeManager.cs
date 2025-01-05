@@ -21,24 +21,59 @@ namespace SchoolDB.Managers
             _context = context;
         }
 
+
+        List<Employee> employees = new List<Employee>();
+
+
+        //Method to view employee or departments based on user input
+
+        public void ViewEmployeeOrDepartment() // USE VIEW FROM DATABASE?
+        {
+            Console.WriteLine("Select category: ");
+            Console.WriteLine("[1] All employees");
+            Console.WriteLine("[2] Department");
+            Console.WriteLine("[3] Number of employees per department");
+            Console.WriteLine("[4] Create new employee");
+            Console.WriteLine();
+            Console.WriteLine("Enter your choice (1-3) OR press Enter to return to main menu.");
+            Console.WriteLine();
+            string choice = Console.ReadLine();
+            Console.Clear();
+
+            switch (choice)
+            {
+                case "1":
+                    DisplayEmployeeList();
+                    break;
+                case "2":
+                    ViewEmployees();
+                    break;
+                case "3":
+                    ViewCountEmployeesPerDepartment();
+                    break;
+                case "4":
+                    AddEmployee();
+                    break;
+
+            }
+        }
+
+
         // Method to view employees based on their category.
         // Prompts the user to select a category and displays the corresponding employees.
         public void ViewEmployees()
         {
-            Console.WriteLine("Select category of employees:");
-            Console.WriteLine("1. Teacher");
-            Console.WriteLine("2. HR");
-            Console.WriteLine("3. Boss");
-            Console.WriteLine("4. School Counselor");
-            Console.WriteLine("5. Janitor");
-            Console.WriteLine("6. IT");
-            Console.WriteLine("7. View all employees");
-            Console.WriteLine("Enter your choice (1-7): ");
+            Console.WriteLine("Select department:");
+            Console.WriteLine("[1] Teacher");
+            Console.WriteLine("[2] HR");
+            Console.WriteLine("[3] Boss");
+            Console.WriteLine("[4] School Counselor");
+            Console.WriteLine("[5] Janitor");
+            Console.WriteLine("[6] IT");
+            Console.WriteLine("Enter your choice (1-6): ");
 
             string choice = Console.ReadLine();
             Console.Clear();
-
-            List<Employee> employees = new List<Employee>();
 
             switch (choice)
             {
@@ -60,17 +95,26 @@ namespace SchoolDB.Managers
                 case "6":
                     employees = _context.Employees.ToList().Where(e => e.Title.Equals("IT", StringComparison.OrdinalIgnoreCase)).ToList();
                     break;
-                case "7":
-                    employees = _context.Employees.ToList();
-                    break;
                 default:
                     Console.WriteLine("Invalid choice. Please select a valid option from the menu");
                     return;
             }
 
+            DisplayEmployeeList();
+
+        }
+
+        //Method to display employee list
+        public void DisplayEmployeeList()
+        {
+            var employees = _context.Employees
+                                    .OrderBy(e => e.FirstName)
+                                    .ThenBy(e => e.LastName)
+                                    .ToList();
+
             if (employees.Count == 0)
             {
-                Console.WriteLine("No employees found for the given category.");
+                Console.WriteLine($"No employees found for the given category.");
             }
             else
             {
@@ -79,7 +123,29 @@ namespace SchoolDB.Managers
                     Console.WriteLine($"{employee.FirstName} {employee.LastName} - {employee.Title}");
                 }
             }
-            Console.WriteLine("Press any key to return to menu");
+            Console.WriteLine();
+            Console.WriteLine("** Press any key to return to main menu **");
+            Console.ReadLine();
+        }
+        // Method to view departments and the number of employees in each department
+        public void ViewCountEmployeesPerDepartment()
+        {
+            var departmentWithEmployeeCounts = _context.Employees
+                                                       .GroupBy(e => e.Department)
+                                                       .Select(g => new
+                                                       {
+                                                           DepartmentName = g.Key,
+                                                           EmployeeCount = g.Count()
+                                                       })
+                                                       .ToList();
+            Console.WriteLine("Numbers of employees per department:");
+            Console.WriteLine();
+            foreach (var department in departmentWithEmployeeCounts)
+            {
+                Console.WriteLine($"{department.DepartmentName}: {department.EmployeeCount} employee(s)");
+            }
+            Console.WriteLine();
+            Console.WriteLine("** Press any key to return to main menu **");
             Console.ReadKey();
         }
 
@@ -97,6 +163,8 @@ namespace SchoolDB.Managers
             DateTime hireDate = DateTime.Parse(Console.ReadLine());
             Console.WriteLine("Enter employee contact: ");
             string contact = Console.ReadLine();
+            Console.WriteLine("Enter employee department");
+            string department = Console.ReadLine();
 
             // Creating a new employee instance
             var employee = new Employee()
@@ -105,13 +173,15 @@ namespace SchoolDB.Managers
                 LastName = lastName,
                 Title = title,
                 HireDate = hireDate,
-                Contact = contact
+                Contact = contact,
+                Department = department
             };
 
             // Adding the new employee to the context and saving changes to the database
             _context.Employees.Add(employee);
             _context.SaveChanges();
-            Console.WriteLine("Employee Added! \n Press any key to return to menu");
+            Console.WriteLine("Employee created!");
+            Console.WriteLine("** Press any key to return to main menu **");
             Console.ReadKey();
         }
     }

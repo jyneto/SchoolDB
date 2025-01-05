@@ -32,14 +32,11 @@ namespace SchoolDB.Views
             while (running)
             {
                 Console.Clear();
-                Console.WriteLine("1. View all employees");
-                Console.WriteLine("2. View all students");
-                Console.WriteLine("3. View students attending course");
-                Console.WriteLine("4. View grades from the last month");
-                Console.WriteLine("5. View course grades statistics");
-                Console.WriteLine("6. Add new student");
-                Console.WriteLine("7. Add new employee");
-                Console.WriteLine("8. Exit");
+                Console.WriteLine("*** MENU");
+                Console.WriteLine("1. Employees");
+                Console.WriteLine("2. Students");
+                Console.WriteLine("3. Grades statistics");
+                Console.WriteLine("4. Exit");
 
                 // Read user choice
                 string choice = Console.ReadLine();
@@ -48,27 +45,15 @@ namespace SchoolDB.Views
                 switch (choice)
                 {
                     case "1":
-                        _employeeManager.ViewEmployees();
+                        _employeeManager.ViewEmployeeOrDepartment();
                         break;
                     case "2":
                         _studentManager.ViewStudents();
                         break;
                     case "3":
-                        _studentManager.ViewStudentsAttendingCourse();
-                        break;
-                    case "4":
-                        _gradeManager.ViewGradesLastMonth();
-                        break;
-                    case "5":
                         _gradeManager.ViewCourseGradeStats();
                         break;
-                    case "6":
-                        _studentManager.AddStudents();
-                        break;
-                    case "7":
-                        _employeeManager.AddEmployee();
-                        break;
-                    case "8":
+                    case "4":
                         running = false; // Exit the loop and end the program
                         break;
                     default:

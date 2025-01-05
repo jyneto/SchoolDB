@@ -8,6 +8,7 @@ public partial class Course
     public int CourseId { get; set; }
 
     public string? CourseName { get; set; }
+    public string Status { get; set; }
 
     public virtual ICollection<Assignment> Assignments { get; set; } = new List<Assignment>();
 
