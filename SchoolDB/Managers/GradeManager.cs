@@ -30,12 +30,13 @@ namespace SchoolDB.Managers
                     g.FkStudent.FirstName,
                     g.FkStudent.LastName,
                     g.FkCourse.CourseName,
+                    g.Grade1,
                     g.GradeDate
                 }).ToList();
 
             foreach (var grade in grades)
             {
-                Console.WriteLine($"{grade.FirstName} {grade.LastName} - {grade.CourseName}: {grade.GradeDate?.ToString("yyyy-MM-dd")}");
+                Console.WriteLine($"{grade.FirstName} {grade.LastName} - {grade.CourseName}: {grade.Grade1} {grade.GradeDate?.ToString("yyyy-MM-dd")}");
             }
             Console.WriteLine("\n**Press any key to return to menu**");
             Console.ReadKey();
@@ -52,7 +53,10 @@ namespace SchoolDB.Managers
             {
                 Console.WriteLine($"\nProcessing course: {course.CourseName}");
 
-                var grades = _context.Grades.Where(g => g.FkCourseId == course.CourseId).ToList();
+                var grades = _context.Grades
+                    .Where(g => g.FkCourseId == course.CourseId)
+                    .OrderBy(g => g.Grade1)
+                    .ToList();
                 Console.WriteLine($"Grades found for course '{course.CourseName}': " + grades.Count);
 
                 var gradeValues = grades.Select(g => g.Grade1).ToList();
